@@ -1,9 +1,9 @@
 <#
-This code is written and maintained by Darren R. Starr from Nocturnal Holdings AS Norway.
+This code is written and maintained by Darren R. Starr from Conscia Norway AS.
 
 License :
 
-Copyright (c) 2016 Nocturnal Holdings AS Norway
+Copyright (c) 2017 Conscia Norway AS
 
 Permission is hereby granted, free of charge, to any person obtaining a 
 copy of this software and associated documentation files (the "Software"), 

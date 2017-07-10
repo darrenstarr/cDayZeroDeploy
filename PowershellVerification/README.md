@@ -4,6 +4,9 @@
 ### tSample1
 There are currently 3 verification tests in the tSample1 directory.
 
+##### Update
+I have submitted this sample as an issue at the [Powershell Github issue tracker](https://github.com/PowerShell/PowerShell/issues/4206) and [Michael Klement](https://github.com/mklement0) and he's been assisting me in learning that my use of $null for default parameters is actually considered abuse in Powershell. This means I'll have to rewrite chunks of my code to make this work. Let's see where I get to with this.
+
 #### First test (control)
 The first test which is 'tSample1.Integration.Tests.ps1' proves that the $Name property is properly passed from normal configuration data to the resource and that the $null value for $OptionalParameter is passed as a $null value.
 

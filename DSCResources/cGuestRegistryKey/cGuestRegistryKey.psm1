@@ -144,7 +144,7 @@ class cGuestRegistryKey
     #>
     [void] Set()
     {
-        throw [Exception]::new(
+        throw [System.Exception]::new(
             'cGuestRegistryKey is a monitoring (test only) resource and should not be used for setting state'
         )
     }

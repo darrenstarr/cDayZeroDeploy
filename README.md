@@ -56,10 +56,11 @@ Specifies the Windows Server edition to install onto the VHD. As this is a data 
 As this is a VHDX and the storage space is not preallocated, the default value is 100GB though can be increased if needed.
 
 ##### Exceptions (Throws)
-System.ArgumentException - For incorrect use of parameters
-System.Exception - For most cases where no standard exception exists
-System.IO.FileNotFoundException - When files are not found
-System.IO.IOException - When files or directories can't be created
+
+* System.ArgumentException - For incorrect use of parameters
+* System.Exception - For most cases where no standard exception exists
+* System.IO.FileNotFoundException - When files are not found
+* System.IO.IOException - When files or directories can't be created
 
 ##### Example
 

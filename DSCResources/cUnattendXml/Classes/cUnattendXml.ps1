@@ -59,7 +59,7 @@ class cUnattendXml
 	[string] $IPAddress
 
     [DscProperty()]
-	[int] $SubnetLength = -1
+	[int] $SubnetLength = 0
 
     [DscProperty()]
 	[string] $DefaultGateway
@@ -164,14 +164,17 @@ class cUnattendXml
 
         if(
             (-not [String]::IsNullOrEmpty($this.IPAddress)) -or
-            ($this.SubnetLength -ne -1) -or
+            ($this.SubnetLength -ne 0) -or
             (-not [String]::IsNullOrEmpty($this.DefaultGateway))
           ) {
             if(
                 [String]::IsNullOrEmpty($this.IPAddress) -or
-                ($this.SubnetLength -eq -1) -or
+                ($this.SubnetLength -eq 0) -or
                 [String]::IsNullOrEmpty($this.DefaultGateway)
             ) {
+                Write-Debug -Message ('IPAddress null? = ' + [String]::IsNullOrEmpty($this.IPAddress).ToString())
+                Write-Debug -Message ('Default gateway null? = ' + [String]::IsNullOrEmpty($this.DefaultGateway).ToString())
+                Write-Debug -Message ('SubnetLength = ' + $this.SubnetLength)
                 throw [System.ArgumentException]::new(
                     'If IP Address, Subnet length or Default Gateway are set, then all three must be set',
                     'IPAddress'

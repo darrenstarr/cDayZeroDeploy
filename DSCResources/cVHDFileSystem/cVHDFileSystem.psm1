@@ -72,7 +72,7 @@ class cVHDFileSystem
             $fileItem = Get-Item -Path $this.VHDPath
 
             if($null -eq $fileItem) {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Failed to call Get-Item on ' + $this.VHDPath
                 )
             }
@@ -96,7 +96,7 @@ class cVHDFileSystem
                     return $true
                 }
 
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     '[' + $this.VHDPath + '], VHD is already mounted and cannot be altered in its current state'
                 )
             }
@@ -152,7 +152,7 @@ class cVHDFileSystem
         try {
             $this.CopyItems()
         } catch {
-            throw [Exception]::new(
+            throw [System.Exception]::new(
                 'File copy operation failed',
                 $_.Exception                
             )
@@ -191,7 +191,7 @@ class cVHDFileSystem
             $destinationPath = Join-Path -Path $this.WindowsPartitionRoot -ChildPath $destinationItem
             Write-Verbose -Message ('Checking for presence of destination file [' + $destinationPath + ']')
             if(Test-Path -Path $destinationItem) {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Overwriting existing files is not currently supported [' + $destinationItem + ']'
                 )
             }
@@ -219,7 +219,7 @@ class cVHDFileSystem
                 Copy-Item -Path $sourceItem -Destination $destinationPath -Confirm:$false -Force
             } else {
                 Write-Verbose -Message 'WTF'
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     '[' + $sourceItem + '] is an unsupported type [' + $sourceFileItem.GetType() + ']'
                 )
             }
@@ -233,7 +233,7 @@ class cVHDFileSystem
             Write-Verbose -Message ('Getting handle to the VHD file')
             $vhd = Get-Vhd -Path $this.VHDPath 
             if($null -eq $vhd) {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Unknown error getting handle to the vhd'
                 )
             }
@@ -242,7 +242,7 @@ class cVHDFileSystem
                 throw $_.Exception
             }
 
-            throw [Exception]::new(
+            throw [System.Exception]::new(
                 'Error obtaining VHD handle to ' + $this.VHDPath,
                 $_.Exception
             )
@@ -253,7 +253,7 @@ class cVHDFileSystem
             Write-Verbose -Message ('Obtained VHD Handle, mounting VHD image')
             $mountResult = $vhd | Mount-VHD -Passthru
             if ($null -eq $mountResult) {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Unknown error mounting VHD [' + $this.VHDPath + ']'
                 )
             }
@@ -262,7 +262,7 @@ class cVHDFileSystem
                 throw $_.Exception
             }
 
-            throw [Exception]::new(
+            throw [System.Exception]::new(
                 'Error mounting VHD ' + $this.VHDPath,
                 $_.Exception
             )            
@@ -273,7 +273,7 @@ class cVHDFileSystem
 
             $disk = $mountResult | Get-Disk
             if ($null -eq $disk) {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Failed to get disk handle'
                 )
             }
@@ -282,7 +282,7 @@ class cVHDFileSystem
 
             $partitions = $disk | Get-Partition
             if ($null -eq $partitions) {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Failed to get partition table'
                 )
             }
@@ -299,7 +299,7 @@ class cVHDFileSystem
                     ([char]::IsLetter($_.DriveLetter[0])) 
                 }
             } catch {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Failed to get a partition meeting the criteria of a Windows boot drive',
                     $_.Exception
                 )
@@ -307,7 +307,7 @@ class cVHDFileSystem
 
             if ($null -eq $windowsPartition) {
                 #TODO : Generate error if there is more than one item returned.
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Failed to find a non-UEFI or Reserved partition'
                 )
             }
@@ -320,7 +320,7 @@ class cVHDFileSystem
                 Write-Verbose -Message ('Making drive root accessible to other commandlets')
                 $psDrive = New-PSDrive -Name $windowsPartition.DriveLetter -PSProvider FileSystem -Root $this.WindowsPartitionRoot 
                 if ($null -eq $psDrive) {
-                    throw [Exception]::new(
+                    throw [System.Exception]::new(
                         'Unknown error when trying to make drive accessible to other commandlets'
                     )
                 }
@@ -329,7 +329,7 @@ class cVHDFileSystem
                     throw $_.Exception
                 }
 
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Failed to make drive accessible to other commandlets',
                     $_.Exception
                 )
@@ -347,7 +347,7 @@ class cVHDFileSystem
 
             $this.WindowsPartitionRoot = $null
 
-            throw [Exception]::new(
+            throw [System.Exception]::new(
                 'Failed to complete mounting and making [' + $this.VHDPath + '] accessible to other commandslet',
                 $_.Exception
             )
@@ -361,7 +361,7 @@ class cVHDFileSystem
             Write-Verbose -Message ('Getting handle to the VHD file')
             $vhd = Get-Vhd -Path $this.VHDPath 
             if($null -eq $vhd) {
-                throw [Exception]::new(
+                throw [System.Exception]::new(
                     'Unknown error getting handle to the vhd'
                 )
             }
@@ -370,7 +370,7 @@ class cVHDFileSystem
                 throw $_.Exception
             }
 
-            throw [Exception]::new(
+            throw [System.Exception]::new(
                 'Error obtaining VHD handle to ' + $this.VHDPath,
                 $_.Exception
             )
@@ -380,7 +380,7 @@ class cVHDFileSystem
             Write-Verbose -Message 'Dismounting VHD'
             $vhd | Dismount-VHD
         } catch {
-            throw [Exception]::new(
+            throw [System.Exception]::new(
                 'Failed to dismount [' + $this.VHDPath + ']',
                 $_.Exception
             )

@@ -14,7 +14,7 @@ Configuration cGuestRegistryKey_Config {
 
         cUnattendXml UnattendXml {
             Path = $Node.UnattendXmlPath
-            LocalAdministratorPassword = 'Minions12345'
+            LocalAdministratorPassword = 'Minions8675309'
             RegisteredOwner = 'Bob'
             RegisteredOrganization = 'Minions will take over Inc.'
             ReadyRegistryKeyName = 'SystemStatus'

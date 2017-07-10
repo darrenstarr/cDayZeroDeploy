@@ -29,7 +29,7 @@ Configuration cGuestRegistryKey_Config {
             DependsOn = @('[cDifferencingVHD]VMDisk', '[cUnattendXml]UnattendXml')
         }
 
-        xVMHyperV ActiveDirectoryVM {
+        xVMHyperV TestVM {
             Ensure        = 'Present'
             Name          = 'TestVM'
             VhdPath       = $Node.VHDPath
@@ -47,7 +47,7 @@ Configuration cGuestRegistryKey_Config {
             VMName = 'TestVM'
             KeyName = 'SystemStatus'
             KeyValue = 'Ready'
-            DependsOn = @('[xVMHyperV]ActiveDirectoryVM')
+            DependsOn = @('[xVMHyperV]TestVM')
         }
     }
 }

@@ -109,7 +109,9 @@ class cWindowsVHD
     {
         Write-Verbose -Message ('Checking for a preexisting VHD [' + $this.VHDPath + '] file')
         If (Test-Path -Path $this.VHDPath) {
-            throw ('VHD File [' + $this.VHDPath + '] is already present')
+            throw [Exception]::(
+                'VHD File [' + $this.VHDPath + '] is already present'
+            )
         }
 
         Write-Verbose -Message ('VHD does not exist, mounting ISO')
@@ -119,7 +121,10 @@ class cWindowsVHD
             Write-Verbose -Message ('Start conversion of Windows image to VHD')
             $this.ConvertWindowsImage()
         } catch {
-            throw ('Windows image conversion failed', $_.Exception)
+            throw [Exception] (
+                'Windows image conversion failed', 
+                $_.Exception
+            )
         } finally {
             $this.DismountISO()
         }
@@ -220,11 +225,17 @@ class cWindowsVHD
         Get-PSDrive
         
         if(-not (Test-Path -Path $convertWindowsImageScriptPath)) {
-            throw [System.IO.FileNotFoundException]::new('Is this not a Windows Server 2016 ISO?', $convertWindowsImageScriptPath)
+            throw [System.IO.FileNotFoundException]::new(
+                'Is this not a Windows Server 2016 ISO?', 
+                $convertWindowsImageScriptPath
+            )
         }
 
         if(-not (Test-Path -Path $installWimPath)) {
-            throw [System.IO.FileNotFoundException]::new('The Windows ISO may be invalid', $installWimPath)
+            throw [System.IO.FileNotFoundException]::new(
+                'The Windows ISO may be invalid', 
+                $installWimPath
+            )
         }
 
         if(Test-Path -Path $temporaryConversionPath) {
@@ -232,20 +243,28 @@ class cWindowsVHD
             try {
                 Remove-Item -Path $temporaryConversionPath -Recurse -Force -Confirm:$false
             } catch {
-                throw [System.IO.IOException]::new('Failed to delete [' + $temporaryConversionPath + ']. This directory should not be present before using this function', $_.Exception)
+                throw [System.IO.IOException]::new(
+                    'Failed to delete [' + $temporaryConversionPath + ']. This directory should not be present before using this function', 
+                    $_.Exception
+                )
             }
         }
 
         # TODO : The following should not be necessary, but I'm not convinced that Remove-Item will throw an exception properly
         if(Test-Path -Path $temporaryConversionPath) {
-            throw ('Failed to delete [' + $temporaryConversionPath + ']. This directory should not be present before using this function')
+            throw [Exception]::new(
+                'Failed to delete [' + $temporaryConversionPath + ']. This directory should not be present before using this function'
+            )
         }
 
         try {
             Write-Verbose -Message ('Creating temporary path [' + $temporaryConversionPath + '] to use for image conversion operations')
             New-Item -Path $temporaryConversionPath -Confirm:$false -ItemType Directory -Force
         } catch {
-            throw [Exception]::new('Failed to create path [' + $temporaryConversionPath + ']. Cannot continue', $_.Exception)
+            throw [Exception]::new(
+                'Failed to create path [' + $temporaryConversionPath + ']. Cannot continue', 
+                $_.Exception
+            )
         }
 
         . $convertWindowsImageScriptPath
@@ -269,7 +288,10 @@ class cWindowsVHD
         try {
             Remove-Item -Path $temporaryConversionPath -Recurse -Force -Confirm:$false
         } catch {
-            throw [System.IO.IOException]::new('Failed to delete [' + $temporaryConversionPath + ']. This directory should be removed before continuing', $_.Exception)
+            throw [System.IO.IOException]::new(
+                'Failed to delete [' + $temporaryConversionPath + ']. This directory should be removed before continuing', 
+                $_.Exception
+            )
         }
     }
     

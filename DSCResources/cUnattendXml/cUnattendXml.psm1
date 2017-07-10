@@ -915,11 +915,11 @@ class UnattendXml
     }
 }
 <#
-This code is written and maintained by Darren R. Starr from Nocturnal Holdings AS Norway.
+This code is written and maintained by Darren R. Starr from Conscia Norway AS.
 
 License :
 
-Copyright (c) 2016 Nocturnal Holdings AS Norway
+Copyright (c) 2017 Conscia Norway AS
 
 Permission is hereby granted, free of charge, to any person obtaining a 
 copy of this software and associated documentation files (the "Software"), 
@@ -975,7 +975,7 @@ class cUnattendXml
 	[string] $IPAddress
 
     [DscProperty()]
-	[string] $SubnetLength
+	[int] $SubnetLength
 
     [DscProperty()]
 	[string] $DefaultGateway
@@ -1077,6 +1077,16 @@ class cUnattendXml
             
             $unattend.SetRouterDiscoveryEnabled($this.InterfaceName, $false)
         }
+
+            if($null -ne $this.IPAddress) {
+                Write-Verbose -Message 'IP is not null'
+            }
+            if($null -ne $this.SubnetLength){
+                Write-Verbose -Message 'subenet length is not null'
+            }
+            if($null -ne $this.DefaultGateway){
+                Write-Verbose -Message 'dg is not null'
+            }
 
         if(
             ($null -ne $this.IPAddress) -or

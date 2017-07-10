@@ -104,7 +104,7 @@ class cGuestRegistryKey
         $registryKeyName = $this.KeyName
 
         $timeDifference = (([DateTime]::Now).Subtract($startTime)).TotalSeconds
-        Write-Verbose -Message ('Obtained handle to virtual machine, waiting for value (timeout in ' + $timeDifference + ')')
+        Write-Verbose -Message ('Obtained handle to virtual machine, waiting for value (timeout in ' + ($this.TimeOutSeconds - $timeDifference) + ' seconds)')
         $guestKeyValue = $null   
         while(($guestKeyValue -ne $this.KeyValue) -and ($timeDifference -lt $this.TimeOutSeconds)) {
             $exchangeItems = $vm.GetRelated("Msvm_KvpExchangeComponent").GuestExchangeItems 

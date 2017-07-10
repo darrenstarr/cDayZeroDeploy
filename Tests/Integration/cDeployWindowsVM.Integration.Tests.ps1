@@ -90,6 +90,14 @@ try
         }
 
         AfterAll {
+#           try {
+#               $vm = Get-VM -Name ($configData.AllNodes[0].VMName) 
+#               if($null -ne $vm) {
+#                   Stop-VM -VM $vm -Force -TurnOff 
+#                   $vm.ConfigurationLocation
+#                   Remove-VM -VM $vm -Force -Confirm:$false 
+#               }
+#           } catch {}
 #            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
 #                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
 #            }

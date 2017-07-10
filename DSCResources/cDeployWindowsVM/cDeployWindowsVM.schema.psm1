@@ -72,62 +72,74 @@ Configuration cDeployWindowsVM
         [string] $ReadyRegistryKeyName = 'Status',
 
         [Parameter()]
-        [string] $ReadyRegistryKeyValue = 'Ready'
+        [string] $ReadyRegistryKeyValue = 'Ready',
+
+        [Parameter()]
+        [UInt64] $StartupMemory = 1GB,
+
+        [Parameter()]
+        [UInt64] $MinimumMemory = 512MB,
+
+        [Parameter()]
+        [UInt64] $MaximumMemory = 4GB,
+
+        [Parameter()]
+        [int] $ProcessorCount = 2
     )
 
     Import-DscResource -Name xVMHyperV -ModuleName xHyper-V
 
     cDifferencingVHD VirtualMachineDisk {
-        VHDPath = $VHDPath
-        ParentVHDPath = $ParentVHDPath
+        VHDPath         = $VHDPath
+        ParentVHDPath   = $ParentVHDPath
     }
 
     cUnattendXml UnattendXml {
-        Path = $UnattendXMLPath
-        ComputerName = $ComputerName
-        RegisteredOwner = $RegisteredOwner
-        RegisteredOrganization = $RegisteredOrganization
-        TimeZone = $TimeZone
-        LocalAdministratorPassword = $LocalAdministratorPassword
-        InterfaceName = $InterfaceName
-        DisableDHCP = $DisableDHCP
-        DisableRouterDiscovery = $DisableRouterDiscovery
-        IPAddress = $IPAddress
-        SubnetLength = $SubnetLength
-        DefaultGateway = $DefaultGateway
-        DNSServers = $DNSServers
-        DNSDomainName = $DNSDomainName
-        InterfaceMetric = $InterfaceMetric
-        ReadyRegistryKeyName = $ReadyRegistryKeyName
-        ReadyRegistryKeyValue = $ReadyRegistryKeyValue
+        Path                        = $UnattendXMLPath
+        ComputerName                = $ComputerName
+        RegisteredOwner             = $RegisteredOwner
+        RegisteredOrganization      = $RegisteredOrganization
+        TimeZone                    = $TimeZone
+        LocalAdministratorPassword  = $LocalAdministratorPassword
+        InterfaceName               = $InterfaceName
+        DisableDHCP                 = $DisableDHCP
+        DisableRouterDiscovery      = $DisableRouterDiscovery
+        IPAddress                   = $IPAddress
+        SubnetLength                = $SubnetLength
+        DefaultGateway              = $DefaultGateway
+        DNSServers                  = $DNSServers
+        DNSDomainName               = $DNSDomainName
+        InterfaceMetric             = $InterfaceMetric
+        ReadyRegistryKeyName        = $ReadyRegistryKeyName
+        ReadyRegistryKeyValue       = $ReadyRegistryKeyValue
     }
 
     cVHDFileSystem VHDFileSystem {
-        VHDPath = $VHDPath
-        ItemList = @(
-            ($UnattendXMLPath), 'unattend.xml'
-        )
-        DependsOn = @('[cDifferencingVHD]VirtualMachineDisk', '[cUnattendXml]UnattendXml')
+        VHDPath     = $VHDPath
+        ItemList    = @(
+                          ($UnattendXMLPath), 'unattend.xml'
+                      )
+        DependsOn   = @('[cDifferencingVHD]VirtualMachineDisk', '[cUnattendXml]UnattendXml')
     }
 
     xVMHyperV VirtualMachine {
-        Ensure        = 'Present'
-        Name          = $VMName
-        VhdPath       = $VHDPath
-        Generation    = 2
-        StartupMemory = 1GB
-        MinimumMemory = 512MB
-        MaximumMemory = 4GB
-        ProcessorCount = 2
-        State = 'Running'
-        SecureBoot = $true
-        DependsOn     = @('[cVHDFileSystem]VHDFileSystem')
+        Ensure          = 'Present'
+        Name            = $VMName
+        VhdPath         = $VHDPath
+        Generation      = 2
+        StartupMemory   = $StartupMemory
+        MinimumMemory   = $MinimumMemory
+        MaximumMemory   = $MaximumMemory
+        ProcessorCount  = $ProcessorCount
+        State           = 'Running'
+        SecureBoot      = $true
+        DependsOn       = @('[cVHDFileSystem]VHDFileSystem')
     }
 
     cGuestRegistryKey StatusReadyKey {
-        VMName = $VMName
-        KeyName = 'SystemStatus'
-        KeyValue = 'Ready'
-        DependsOn = @('[xVMHyperV]VirtualMachine')
+        VMName      = $VMName
+        KeyName     = $ReadyRegistryKeyName
+        KeyValue    = $ReadyRegistryKeyValue
+        DependsOn   = @('[xVMHyperV]VirtualMachine')
     }
 }

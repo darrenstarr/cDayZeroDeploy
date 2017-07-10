@@ -59,7 +59,7 @@ class cUnattendXml
 	[string] $IPAddress
 
     [DscProperty()]
-	[int] $SubnetLength = $null
+	[int] $SubnetLength = -1
 
     [DscProperty()]
 	[string] $DefaultGateway
@@ -110,32 +110,32 @@ class cUnattendXml
     hidden [string] CreateUnattendXml() {
 
         $unattend = [UnattendXml]::new()
-
-        if($null -ne $this.ComputerName) {
+        
+        if(-not [String]::IsNullOrEmpty($this.ComputerName)) {
             $unattend.SetComputerName($this.ComputerName)
         }
 
-        if($null -ne $this.RegisteredOwner) {
+        if(-not [String]::IsNullOrEmpty($this.RegisteredOwner)) {
             $unattend.SetRegisteredOwner($this.RegisteredOwner)
         }
 
-        if($null -ne $this.RegisteredOrganization) {
+        if(-not [String]::IsNullOrEmpty($this.RegisteredOrganization)) {
             $unattend.SetRegisteredOrganization($this.RegisteredOrganization)
         }
 
-        if($null -ne $this.TimeZone) {
+        if(-not [String]::IsNullOrEmpty($this.TimeZone)) {
             $unattend.SetTimeZone($this.TimeZone)
         }
 
-        if($null -ne $this.LocalAdministratorPassword) {
+        if(-not [String]::IsNullOrEmpty($this.LocalAdministratorPassword)) {
             $unattend.SetAdministratorPassword($this.LocalAdministratorPassword)
             $unattend.SetSkipMachineOOBE($true)
             $unattend.SetHideEULA($true)
         }
 
         if($this.DisableDHCP) {
-            if($null -eq $this.InterfaceName) {
-                throw [System.ArgumentNullException]::new(
+            if([String]::IsNullOrEmpty($this.InterfaceName)) {
+                throw [System.ArgumentException]::new(
                     'If configuring DHCP settings, the interface name must be provided',
                     'InterfaceName'
                 )
@@ -152,8 +152,8 @@ class cUnattendXml
         }
 
         if($this.DisableRouterDiscovery) {
-            if($null -eq $this.InterfaceName) {
-                throw [System.ArgumentNullException]::new(
+            if([String]::IsNullOrEmpty($this.InterfaceName)) {
+                throw [System.ArgumentException]::new(
                     'If configuring DHCP settings, the interface name must be provided',
                     'InterfaceName'
                 )
@@ -163,23 +163,23 @@ class cUnattendXml
         }
 
         if(
-            ($null -ne $this.IPAddress) -or
-            ($null -ne $this.SubnetLength -and $this.SubnetLength -ne 0) -or
-            ($null -ne $this.DefaultGateway)
+            (-not [String]::IsNullOrEmpty($this.IPAddress)) -or
+            ($this.SubnetLength -ne -1) -or
+            (-not [String]::IsNullOrEmpty($this.DefaultGateway))
           ) {
             if(
-                ($null -eq $this.IPAddress) -or
-                ($null -eq $this.SubnetLength -and $this.SubnetLength -ne 0) -or
-                ($null -eq $this.DefaultGateway)
+                [String]::IsNullOrEmpty($this.IPAddress) -or
+                ($this.SubnetLength -eq -1) -or
+                [String]::IsNullOrEmpty($this.DefaultGateway)
             ) {
-                throw [System.ArgumentNullException]::new(
+                throw [System.ArgumentException]::new(
                     'If IP Address, Subnet length or Default Gateway are set, then all three must be set',
                     'IPAddress'
                 )
             }
 
-            if($null -eq $this.InterfaceName) {
-                throw [System.ArgumentNullException]::new(
+            if($[String]::IsNullOrEmpty($this.InterfaceName)) {
+                throw [System.ArgumentException]::new(
                     'If configuring IP settings, the interface name must be provided',
                     'InterfaceName'
                 )
@@ -200,16 +200,16 @@ class cUnattendXml
                 )
         }
 
-        if(($null -ne $this.DNSServers) -or ($null -ne $this.DNSDomainName)) {
-            if(($null -eq $this.DNSServers) -or ($null -eq $this.DNSDomainName)) {
+        if((-not [String]::IsNullOrEmpty($this.DNSServers)) -or (-not [String]::IsNullOrEmpty($this.DNSDomainName))) {
+            if([String]::IsNullOrEmpty($this.DNSServers) -or [String]::IsNullOrEmpty($this.DNSDomainName)) {
                 # TODO : Consider allowing DNS servers to be set without a domain name
-                throw [System.ArgumentNullException]::new(
+                throw [System.ArgumentException]::new(
                     'If configuring DNS settings, both the server and the domain name should be set',
                     'InterfaceName'
                 )
             }
-            if($null -eq $this.InterfaceName) {
-                throw [System.ArgumentNullException]::new(
+            if([String]::IsNullOrEmpty($this.InterfaceName)) {
+                throw [System.ArgumentException]::new(
                     'If configuring DNS settings, the interface name must be provided',
                     'InterfaceName'
                 )
@@ -218,9 +218,9 @@ class cUnattendXml
             $unattend.SetDNSInterfaceSettings($this.InterfaceName, $this.DNSServers, $this.DNSDomainName)
         }
 
-        if($null -ne $this.InterfaceMetric) {
-            if($null -eq $this.InterfaceName) {
-                throw [System.ArgumentNullException]::new(
+        if($this.InterfaceMetric -ne -1) {
+            if([String]::IsNullOrEmpty($this.InterfaceName)) {
+                throw [System.ArgumentException]::new(
                     'If configuring interface metric settings, the interface name must be provided',
                     'InterfaceName'
                 )
@@ -228,16 +228,16 @@ class cUnattendXml
             $unattend.SetInterfaceIPv4Metric($this.InterfaceName, 10)
         }
 
-        if(($null -ne $this.ReadyRegistryKeyName) -or ($null -ne $this.ReadyRegistryKeyValue)) {
-            if(($null -eq $this.ReadyRegistryKeyName) -or ($null -eq $this.ReadyRegistryKeyValue)) {
-                throw [System.ArgumentNullException]::new(
+        if((-not [String]::IsNullOrEmpty($this.ReadyRegistryKeyName)) -or (-not [String]::IsNullOrEmpty($this.ReadyRegistryKeyValue))) {
+            if([String]::IsNullOrEmpty($this.ReadyRegistryKeyName) -or [String]::IsNullOrEmpty($this.ReadyRegistryKeyValue)) {
+                throw [System.ArgumentException]::new(
                     'If configuring a registry key name and value to be set once unattend.xml is mostly done, then both must be defined',
                     'ReadyRegistryKeyName'
                 )
             }
 
-            if ($null -eq $this.LocalAdministratorPassword) {
-                throw [System.ArgumentNullException]::new(
+            if ([String]::IsNullOrEmpty($this.LocalAdministratorPassword)) {
+                throw [System.ArgumentException]::new(
                     'If configuring a registry key name and value, the local adminsitrator password must be set to allow an autologon session',
                     'LocalAdministratorPassword'
                 )

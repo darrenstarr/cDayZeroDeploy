@@ -3,7 +3,7 @@ Configuration cWindowsVHD_Config {
         [string[]]$ComputerName="localhost"
     )
     
-    Import-DscResource -ModuleName cWindowsVHD
+    Import-DscResource -ModuleName cDayZeroDeploy
 
     node $ComputerName {
         cWindowsVHD BasicTest {

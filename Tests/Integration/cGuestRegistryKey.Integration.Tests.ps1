@@ -26,6 +26,8 @@ $TestEnvironment = Initialize-TestEnvironment -DSCModuleName $script:DSCModuleNa
 Write-Host ('PSModulePath = ' + $env:PSModulePath)
 Write-Host ('ModuleRoot = ' + $ModuleRoot)
 
+Get-DscResource | Where-Object { $_.ModuleName -eq $script:DSCModuleName } | Select-Object { $_.Name } | Write-Host
+
 #endregion
 
 # Begin Testing

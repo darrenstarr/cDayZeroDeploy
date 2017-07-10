@@ -59,7 +59,7 @@ class cUnattendXml
 	[string] $IPAddress
 
     [DscProperty()]
-	[int] $SubnetLength
+	[int] $SubnetLength = $null
 
     [DscProperty()]
 	[string] $DefaultGateway
@@ -162,24 +162,14 @@ class cUnattendXml
             $unattend.SetRouterDiscoveryEnabled($this.InterfaceName, $false)
         }
 
-            if($null -ne $this.IPAddress) {
-                Write-Verbose -Message 'IP is not null'
-            }
-            if($null -ne $this.SubnetLength){
-                Write-Verbose -Message 'subenet length is not null'
-            }
-            if($null -ne $this.DefaultGateway){
-                Write-Verbose -Message 'dg is not null'
-            }
-
         if(
             ($null -ne $this.IPAddress) -or
-            ($null -ne $this.SubnetLength) -or
+            ($null -ne $this.SubnetLength -and $this.SubnetLength -ne 0) -or
             ($null -ne $this.DefaultGateway)
           ) {
             if(
                 ($null -eq $this.IPAddress) -or
-                ($null -eq $this.SubnetLength) -or
+                ($null -eq $this.SubnetLength -and $this.SubnetLength -ne 0) -or
                 ($null -eq $this.DefaultGateway)
             ) {
                 throw [System.ArgumentNullException]::new(

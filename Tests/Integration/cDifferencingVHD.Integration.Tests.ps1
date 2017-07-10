@@ -1,12 +1,10 @@
 #requires -Version 5.0 -Modules Pester
 
-Clear-Host
-
-$script:DSCModuleName = 'cVHDFileSystem'
-$script:DSCResourceName = 'cVHDFileSystem'
+$script:DSCModuleName = 'cDayZeroDeploy'
+$script:DSCResourceName = 'cDifferencingVHD'
 
 #region Header
-
+Clear-Host
 $ModuleRoot = Split-Path -Path $Script:MyInvocation.MyCommand.Path -Parent | Split-Path -Parent | Split-Path -Parent
 
 if (
@@ -46,7 +44,6 @@ try
                         PsDscAllowPlainTextPassword = $true
                         VHDPath                     = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd2.vhdx')
                         ParentVHDPath               = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd.vhdx')
-                        TestFile = (Join-Path -Path $Env:TEMP -ChildPath 'testfile.txt')
                     }
                 )
             }
@@ -54,11 +51,6 @@ try
             If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
                 Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
             }
-
-            If (Test-Path -Path $configData.AllNodes[0].TestFile) {
-                Remove-Item -Path $configData.AllNodes[0].TestFile -Force
-            }
-            Set-Content -Path $configData.AllNodes[0].TestFile -Value 'I''m a little teapot short and stout'
         }
 
         Context 'InitialTest' {
@@ -83,12 +75,8 @@ try
         }
 
         AfterAll {
-#            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
-#                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
-#            }
-
-            If (Test-Path -Path $configData.AllNodes[0].TestFile) {
-                Remove-Item -Path $configData.AllNodes[0].TestFile -Force
+            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
+                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
             }
         }
     }

@@ -1,10 +1,12 @@
 #requires -Version 5.0 -Modules Pester
 
-$script:DSCModuleName = 'cWindowsVHD'
-$script:DSCResourceName = 'cWindowsVHD'
+Clear-Host
+
+$script:DSCModuleName = 'cDayZeroDeploy'
+$script:DSCResourceName = 'cVHDFileSystem'
 
 #region Header
-Clear-Host
+
 $ModuleRoot = Split-Path -Path $Script:MyInvocation.MyCommand.Path -Parent | Split-Path -Parent | Split-Path -Parent
 
 if (
@@ -42,15 +44,21 @@ try
                         NodeName                    = 'localhost'
                         PsDscAllowDomainUser        = $true
                         PsDscAllowPlainTextPassword = $true
-                        VHDPath                     = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd.vhdx')
-                        ISOPath                     = 'C:\Temp\en_windows_10_multiple_editions_version_1511_x64_dvd_7223712.iso'
+                        VHDPath                     = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd2.vhdx')
+                        ParentVHDPath               = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd.vhdx')
+                        TestFile = (Join-Path -Path $Env:TEMP -ChildPath 'testfile.txt')
                     }
                 )
             }
 
-#            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
-#                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
-#            }
+            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
+                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
+            }
+
+            If (Test-Path -Path $configData.AllNodes[0].TestFile) {
+                Remove-Item -Path $configData.AllNodes[0].TestFile -Force
+            }
+            Set-Content -Path $configData.AllNodes[0].TestFile -Value 'I''m a little teapot short and stout'
         }
 
         Context 'InitialTest' {
@@ -78,6 +86,10 @@ try
 #            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
 #                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
 #            }
+
+            If (Test-Path -Path $configData.AllNodes[0].TestFile) {
+                Remove-Item -Path $configData.AllNodes[0].TestFile -Force
+            }
         }
     }
     #endregion

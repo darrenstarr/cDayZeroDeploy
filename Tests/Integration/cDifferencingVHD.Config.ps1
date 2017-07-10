@@ -3,7 +3,7 @@ Configuration cDifferencingVHD_Config {
         [string[]]$ComputerName="localhost"
     )
     
-    Import-DscResource -ModuleName cDifferencingVHD
+    Import-DscResource -ModuleName cDayZeroDeploy
 
     node $ComputerName {
         cDifferencingVHD BasicTest {

@@ -174,10 +174,6 @@ class cWindowsVHD
         }
 
         Write-Verbose -Message ('ISO mounted and accessible at [' + $this.ISORoot + ']')
-
-        $this.ISORoot = 'C:\Temp\Windows Server 2016'
-
-        Write-Verbose -Message ('ISO mounted and accessible at [' + $this.ISORoot + '] (test code)')
     }
 
     hidden [void] DismountISO()
@@ -212,10 +208,17 @@ class cWindowsVHD
 
     hidden [void] ConvertWindowsImage()
     {
-        $convertWindowsImageScriptPath = Join-Path -Path $this.ISORoot -ChildPath 'NanoServer\NanoServerImageGenerator\Convert-WindowsImage.ps1'
-        $installWimPath = Join-Path -Path $this.ISORoot -ChildPath 'sources\install.wim'
-        $temporaryConversionPath = Join-Path -Path $env:TEMP -ChildPath 'ConvertWindowsImage'
+        $convertWindowsImageScriptPath = [cWindowsVHD]::JoinPath($this.ISORoot, 'NanoServer\NanoServerImageGenerator\Convert-WindowsImage.ps1')
+        $installWimPath =[cWindowsVHD]::JoinPath($this.ISORoot, 'sources\install.wim')
+        $temporaryConversionPath = [cWindowsVHD]::JoinPath($env:TEMP, 'ConvertWindowsImage')
 
+        Write-Verbose -Message ('Convert-WindowsImage.ps1 should be located at -> ' + $convertWindowsImageScriptPath)
+        Write-Verbose -Message ('install.wim should be located at -> ' + $installWimPath)
+        Write-Verbose -Message ('Path to give to Convert-WindowsImage a a temporary directory is -> ' + $temporaryConversionPath)
+
+        # TODO : Get-PSDrive seems to refresh the drives here which has been a problem with Join-Path and Test-Path. Is there a better way?
+        Get-PSDrive
+        
         if(-not (Test-Path -Path $convertWindowsImageScriptPath)) {
             throw [System.IO.FileNotFoundException]::new('Is this not a Windows Server 2016 ISO?', $convertWindowsImageScriptPath)
         }
@@ -268,5 +271,14 @@ class cWindowsVHD
         } catch {
             throw [System.IO.IOException]::new('Failed to delete [' + $temporaryConversionPath + ']. This directory should be removed before continuing', $_.Exception)
         }
+    }
+    
+    <#
+        .SYNOPSIS
+            Dirty nasty hack to get the same functionality of Join-Path without the actual file system dependencies
+    #>
+    hidden static [string]JoinPath([string]$path, [string]$childPath)
+    {
+        return [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($path, $childPath))
     }
 }

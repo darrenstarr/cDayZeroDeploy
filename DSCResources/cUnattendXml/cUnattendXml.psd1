@@ -26,8 +26,6 @@ Copyright = '(c) 2017 Conscia Norway AS. All rights reserved.'
 # Minimum version of the Windows PowerShell engine required by this module
 PowerShellVersion = '5.0'
 
-ScriptsToProcess = @('.\HelperScripts\MergeParts.ps1')
-
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
 } 

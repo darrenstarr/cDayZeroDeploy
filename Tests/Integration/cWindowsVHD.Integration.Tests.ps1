@@ -1,10 +1,10 @@
 #requires -Version 5.0 -Modules Pester
 
-$script:DSCModuleName = 'cUnattendXml'
-$script:DSCResourceName = 'cUnattendXml'
+$script:DSCModuleName = 'cDayZeroDeploy'
+$script:DSCResourceName = 'cWindowsVHD'
 
 #region Header
-
+Clear-Host
 $ModuleRoot = Split-Path -Path $Script:MyInvocation.MyCommand.Path -Parent | Split-Path -Parent | Split-Path -Parent
 
 if (
@@ -42,13 +42,14 @@ try
                         NodeName                    = 'localhost'
                         PsDscAllowDomainUser        = $true
                         PsDscAllowPlainTextPassword = $true
-                        TestFilePath                = (Join-Path -Path $Env:TEMP -ChildPath 'testunattend.xml')
+                        VHDPath                     = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd.vhdx')
+                        ISOPath                     = 'C:\Users\submu\Downloads\en_windows_server_2016_x64_dvd_9718492.iso'
                     }
                 )
             }
-            
-            If (Test-Path -Path $configData.AllNodes[0].TestFilePath) {
-                Remove-Item -Path $configData.AllNodes[0].TestFilePath -Force
+
+            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
+                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
             }
         }
 
@@ -67,13 +68,16 @@ try
                 } | Should Not Throw
             }
 
-#            It 'Should be able to call Get-DscConfiguration without throwing' {
-#                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
-#            }
+            It 'Should be able to call Get-DscConfiguration without throwing' {
+                { Get-DscConfiguration -Verbose -ErrorAction Stop } | Should Not Throw
+            }
             #endregion
         }
 
         AfterAll {
+#            If (Test-Path -Path $configData.AllNodes[0].VHDPath) {
+#                Remove-Item -Path $configData.AllNodes[0].VHDPath -Force
+#            }
         }
     }
     #endregion

@@ -3,7 +3,7 @@ Configuration cUnattendXml_Config {
         [string[]]$ComputerName="localhost"
     )
     
-    Import-DscResource -ModuleName cUnattendXml
+    Import-DscResource -ModuleName cDayZeroDeploy
 
     node $ComputerName {
         cUnattendXml BasicTest {

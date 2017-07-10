@@ -2,7 +2,14 @@
 
 RootModule = '.\cDayZeroDeploy.psm1'
 
-DscResourcesToExport = @('cDifferencingVHD', 'cGuestRegistryKey', 'cUnattendXml', 'cVHDFileSystem', 'cWindowsVHD')
+DscResourcesToExport = @(
+        'cDifferencingVHD', 
+        'cGuestRegistryKey', 
+        'cUnattendXml', 
+        'cVHDFileSystem', 
+        'cWindowsVHD',
+        'cDeployWindowsVM'
+    )
 
 # Version number of this module.
 ModuleVersion = '1.0.0'

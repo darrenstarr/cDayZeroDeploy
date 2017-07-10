@@ -162,7 +162,7 @@ class cDifferencingVHD
 
         $vhdFolderInfo = [System.IO.FileInfo]::new($this.VHDPath)
         if(($null -eq $vhdFolderInfo) -or ($null -eq $vhdFolderInfo.Directory)) {
-            throw [Exception]::new(
+            throw [System.ArgumentException]::new(
                 '[' + $this.VHDPath + '] does not appear to contain a valid parent directory within its path'
             )
         }

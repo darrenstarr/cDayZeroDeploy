@@ -8,6 +8,7 @@ Configuration tSample1Composite_Config {
     node $ComputerName {
         tSample1Composite BasicTest {
             Name = 'Bob'
+#            OptionalProperty = 'Minions are awesome!!!'
         }
     }
 }

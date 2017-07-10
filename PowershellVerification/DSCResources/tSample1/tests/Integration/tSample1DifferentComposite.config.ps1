@@ -1,4 +1,4 @@
-Configuration tSample1Composite
+Configuration tSample1DifferentComposite_config
 {
     Param(
         [Parameter(Mandatory)]

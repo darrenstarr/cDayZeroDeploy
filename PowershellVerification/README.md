@@ -12,8 +12,8 @@ The second test which is tSample1Composite.Integration.Tests.ps1' proves that a 
 
 Another oddity displayed by this test is that $using:Name in a 'Script' resource from resource module PSDesiredStateConfiguration has a namespace conflict. As $Name is an important value to use when creating a composite DSC resource, this conflict is a real problem. 
 
-### Third test
+#### Third test
 The third test is tSample1CompositeConfigData.Integration.Tests.ps1. This displays more or less the same behavior as the second test but makes use of a config data hash table.
 
-### Fourth test
+#### Fourth test
 The fourth test is tSample1DifferentComposite.Integration.Tests.ps1, This displays that even when we use the composite resource as a configuration itself, it still has the same problems as a DSC composite resource when handling optional parameters.

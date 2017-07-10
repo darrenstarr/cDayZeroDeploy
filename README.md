@@ -76,8 +76,7 @@ $configData = @{
         @{
             NodeName   = 'localhost'
             VHDPath    = (Join-Path -Path $Env:TEMP -ChildPath 'test.vhdx')
-            ISOPath    = (Join-Path -Path $Env:TEMP -`
-hildPath 'en_windows_server_2016_x64_dvd_9718492.iso') 
+            ISOPath    = (Join-Path -Path $Env:TEMP -ChildPath 'en_windows_server_2016_x64_dvd_9718492.iso') 
         }
     )
 }

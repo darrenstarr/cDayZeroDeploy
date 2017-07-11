@@ -8,16 +8,28 @@ Configuration cDeployWindowsVM_Config {
     node $ComputerName {
 
         cDeployWindowsVM BasicTest {
-            VMName = $node.VMName
-            VHDPath = $node.VHDPath
-            ParentVHDPath = $node.ParentVHDPath
-            UnattendXMLPath = $node.UnattendXMLPath
-            
-            LocalAdministratorPassword = 'Minions8675309'
-            RegisteredOwner = 'Bob'
-            RegisteredOrganization = 'Minions will take over Inc.'
-            ReadyRegistryKeyName = 'SystemStatus'
-            ReadyRegistryKeyValue = 'Ready'
+            VHDPath                     = $node.VHDPath
+            ParentVHDPath               = $node.ParentVHDPath
+            UnattendXMLPath             = $node.UnattendXMLPath
+
+            VMName                      = $node.VMName
+            StartupMemory               = 512MB
+            SwitchName                  = 'DemoLabSwitch'
+
+            ReadyRegistryKeyName        = 'SystemStatus'
+            ReadyRegistryKeyValue       = 'Ready'
+
+            ComputerName                = $Node.VMName
+            LocalAdministratorPassword  = 'Minions8675309'
+            RegisteredOwner             = 'Bob'
+            RegisteredOrganization      = 'Minions will take over Inc.'
+
+            InterfaceName               = 'Ethernet'
+            IPAddress                   = $Node.IPAddress
+            SubnetLength                = $Node.SubnetLength
+            DefaultGateway              = $Node.DefaultGateway
+            DisableDHCP                 = $true
+            DisableRouterDiscovery      = $true
         }
     }
 }

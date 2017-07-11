@@ -172,16 +172,19 @@ class cUnattendXml
                 ($this.SubnetLength -eq 0) -or
                 [String]::IsNullOrEmpty($this.DefaultGateway)
             ) {
-                Write-Debug -Message ('IPAddress null? = ' + [String]::IsNullOrEmpty($this.IPAddress).ToString())
-                Write-Debug -Message ('Default gateway null? = ' + [String]::IsNullOrEmpty($this.DefaultGateway).ToString())
-                Write-Debug -Message ('SubnetLength = ' + $this.SubnetLength)
+                #Write-Verbose -Message ('IPAddress null? = ' + [String]::IsNullOrEmpty($this.IPAddress).ToString())
+                #Write-Verbose -Message ('IPAddress = ' + $this.IPAddress)
+                #Write-Verbose -Message ('Default gateway null? = ' + [String]::IsNullOrEmpty($this.DefaultGateway).ToString())
+                #Write-Verbose -Message ('Default gateway = ' + $this.DefaultGateway)
+                #Write-Verbose -Message ('SubnetLength = ' + $this.SubnetLength)
+
                 throw [System.ArgumentException]::new(
                     'If IP Address, Subnet length or Default Gateway are set, then all three must be set',
                     'IPAddress'
                 )
             }
 
-            if($[String]::IsNullOrEmpty($this.InterfaceName)) {
+            if([String]::IsNullOrEmpty($this.InterfaceName)) {
                 throw [System.ArgumentException]::new(
                     'If configuring IP settings, the interface name must be provided',
                     'InterfaceName'

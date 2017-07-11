@@ -46,6 +46,9 @@ try
                         VHDPath                     = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd2.vhdx')
                         ParentVHDPath               = (Join-Path -Path $Env:TEMP -ChildPath 'testwindowsvhd.vhdx')
                         UnattendXmlPath             = (Join-Path -Path $Env:TEMP -ChildPath 'testunattend.xml')
+                        IPAddress                   = '10.1.0.219'
+                        SubnetLength                = 24
+                        DefaultGateway              = '10.1.0.1'
                     }
                 )
             }

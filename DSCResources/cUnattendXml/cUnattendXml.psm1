@@ -1097,7 +1097,7 @@ class cUnattendXml
                 )
             }
 
-            if($[String]::IsNullOrEmpty($this.InterfaceName)) {
+            if([String]::IsNullOrEmpty($this.InterfaceName)) {
                 throw [System.ArgumentException]::new(
                     'If configuring IP settings, the interface name must be provided',
                     'InterfaceName'

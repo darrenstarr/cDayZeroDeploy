@@ -15,7 +15,7 @@ The path to parent VHD file to create the differencing image against
 
 ## Example
 
-```
+```Powershell
 Configuration DifferencingDiskExample {
     param(
         [string[]]$ComputerName="localhost"

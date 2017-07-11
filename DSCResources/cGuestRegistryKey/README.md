@@ -21,7 +21,7 @@ The period of time to wait between polling the WMI provider to look for the regi
 
 ## Example
 
-```
+```Powershell
 Configuration cGuestRegistryKeyExample {
     param(
         [string[]]$ComputerName="localhost"

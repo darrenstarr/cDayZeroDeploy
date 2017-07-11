@@ -24,7 +24,7 @@ System.IO.IOException - When files or directories can't be created
 
 ## Example
 
-```
+```Powershell
 Configuration WindowsVHDExample {
     param(
         [string[]]$ComputerName="localhost"

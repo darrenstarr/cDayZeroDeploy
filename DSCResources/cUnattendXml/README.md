@@ -46,7 +46,7 @@ ReadyRegistryKeyName and ReadyRegistryKeyValue are used together to configure a 
 
 ## Example
 
-```
+```Powershell
 Configuration UnattendXmlExample {
     param(
         [string[]]$ComputerName="localhost"

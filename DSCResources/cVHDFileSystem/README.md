@@ -22,7 +22,7 @@ This is a list of string pairs formatted as SourcePath, DestinationRelativePath,
 
 ## Example
 
-```
+```Powershell
 Configuration cVHDFileSystem_Example {
     param(
         [string[]]$ComputerName="localhost"

@@ -42,14 +42,8 @@ try {
 
 . (Join-Path -Path $PSScriptRoot -ChildPath '..\parseMOF.ps1') 
 
-$text = Get-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath 'TestData\localhost.mof') -Raw
-$testMOFParser = [MOFParser]::new()
-$result = $testMOFParser.Parse($text)
-#$result.Count
+Get-DSCResourceDependenciesFromMOF -MOFPath (Join-Path -Path $PSScriptRoot -ChildPath 'TestData\localhost.mof')
 
-$bob = @{
-    Result = $result
-}
 
 
 

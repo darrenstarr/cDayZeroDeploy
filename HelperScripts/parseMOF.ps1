@@ -495,7 +495,7 @@ class MOFArrayValue : MOFValue
         The grammar of the parser as it currently stands is as follows :
             
             DocumentElements<MOFDocumentElement[]>
-                = WS* element:DocumentElement elements:DocumentElements? { 
+                = WS* element:DocumentElement elements:DocumentElements? WS* { 
                     return [MOFDocumentElement[]] @(element, elements) 
                 }
 
@@ -1190,3 +1190,61 @@ class MOFParser {
     }
 }
 
+<#
+    .SYNOPSIS
+        Reads the names of the DSC resource dependencies from a MOF file
+
+    .DESCRIPTION
+        Parses the MOF file provided by the MOFPath parameter and then walks the AST generated to find MOF entries
+        that are instances of other types. For those instances, the values are checked for 'ModuleName' references.
+        If there is a module name reference, then the name is extracted and returned. Only unique entries are returned.
+
+    .PARAMETER MOFPath
+        The path to the MOF file to read and extract DSC resources from
+#>
+Function Get-DSCResourceDependenciesFromMOF
+{
+    Param(
+        [Parameter(Mandatory)]
+        [string]$MOFPath
+    )
+
+    $mofText = Get-Content -Path $MOFPath
+
+    $result = $null
+    try {
+        $testMOFParser = [MOFParser]::new()
+        $result = $testMOFParser.Parse($mofText)
+    } catch {
+        throw [Exception]::new(
+            'Failed to parse ' + $MOFPath,
+            $_.Exception
+        )
+    }
+
+    if($null -eq $result) {
+        throw [Exception]::new(
+            'Failed to parse ' + $MOFPath
+        )
+    }
+
+    $instanceOfObjects = $result.Where{
+        $_ -is [MOFInstanceOf] -and 
+        ($null -ne ($_ -as [MOFInstanceOf]).As) 
+    }
+
+    if ($null -eq $instanceOfObjects) {
+        return $null
+    }
+
+    $dscResourceModuleNames = $instanceOfObjects.ForEach{
+        $_.Value.Values.Where{ 
+            $_.Name.Name -eq 'ModuleName' -and 
+            $_.Value -is [MOFStringValue] 
+        }
+    }.ForEach{
+        $_.Value.Value
+    } | Select-Object -Unique
+
+    return $dscResourceModuleNames
+}

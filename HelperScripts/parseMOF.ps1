@@ -538,8 +538,14 @@ class MOFArrayValue : MOFValue
                 | WS* 'False' { return [MOFBooleanValue]::new($false) }
 
             IntegerValue<MOFIntegerValue>
-                = WS* '0x' hexValue:[0-9a-fA-F]+ { return [MOFIntegerValue]::new([Convert]::ToInt32($hexValue, 16)) }
-                = WS* decimalValue:(-?[0-9]+) { return [MOFIntegerValue]::new([Convert]::ToInt32($decimalValue, 10)) }
+                = hexValue:HexIntegerValue { return hexValue }
+                | decimalValue:DecimalIntegerValue { return decimalValue }
+
+            HexIntegerValue<MOFIntegerValue>
+                = WS* '0x' hexValue:[0-9a-fA-F]+ { return [MOFIntegerValue]::new([Convert]::ToInt64($hexValue, 16)) }
+
+            DecimalIntegerValue<MOFIntegerValue>
+                = WS* decimalValue:(-?[0-9]+) { return [MOFIntegerValue]::new([Convert]::ToInt64($decimalValue, 10)) }
 
             StringValue<MOFStringValue>
                 = WS* '"' stringPart:StringPart? '"' { return [MOFStringValue]::new('' + stringPart.Value) }
@@ -827,7 +833,7 @@ class MOFParser {
         return $null
     }
 
-    # IntegerValue => WS* ('0x' [0-9a-fA-F]+)|(-?[0-9]+) 
+    # IntegerValue => HexIntegerValue | DecimalIntegerValue 
     hidden [MOFIntegerValue] ParseIntegerValue([ParserState] $state)
     {
         $hexValue = $this.ParseHexIntegerValue($state)
@@ -843,6 +849,7 @@ class MOFParser {
         return $null
     }
 
+    # HexIntegerValue = WS* '0x' [0-9a-fA-F]+
     hidden [MOFIntegerValue] ParseHexIntegerValue($state)
     {
         $state.Push()
@@ -865,6 +872,7 @@ class MOFParser {
         return [MOFIntegerValue]::new([Convert]::ToInt64($matchHexValue.GetText(), 16))
     }
 
+    # DecimalIntegerValue = WS* -?[0-9]+
     hidden [MOFIntegerValue] ParseDecimalIntegerValue($state)
     {
         $state.Push()

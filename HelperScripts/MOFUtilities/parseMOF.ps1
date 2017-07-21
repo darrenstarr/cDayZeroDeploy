@@ -35,15 +35,35 @@
     .SYNOPSIS
         A class to maintain the state of the parser, it is a basic stream management class at this point
 
+    .DESCRIPTION
+        This class is a combination of a stream and a state manager. ParserState stores the full text
+        of the file to parse and also the current index within the text. As part of the class, there
+        are functions used for pushing and popping the state (currently by managing a stack of indexes)
+        and also functions for matching literals and regular expressions.
+
     .NOTES
-        It would be relatively easy to alter this class to be 100% self-contained, though the parser
-        currently performs regular expressions, peeks and text grabs from the state.
+        A later version should include
+            <li>Translation of index to line and column number</li>
+            <li>Injecting 'includes' within the text at the current state. On Pop(), the include should be undone</li>
 #>
 class ParserState {
+    <#
+        .SYNOPSIS
+            The text to parse
+    #>
     hidden [string]$SourceText
-    [int]$Index = 0
 
-    [System.Collections.Stack] $Stack = @()
+    <#
+        .SYNOPSIS
+            The current index within the text
+    #>
+    hidden [int]$Index = 0
+
+    <#
+        .SYNOPSIS
+            The state stack. Allowing pushes and pops of the current parser state
+    #>
+    hidden [System.Collections.Stack] $Stack = @()
 
     <#
         .SYNOPSIS
@@ -204,25 +224,15 @@ class ParserState {
 
         .DESCRIPTION
             The result of this function is match criteria of what has been found, where and how long.
-
-        .NOTES
-            The current status of this function is that it is horribly inefficient because I can't find a method
-            of reasonable intelligence to match the text from the index and only match from the given index.
     #>
     [ParserStateMatch]MatchExpression([string]$pattern)
     {
-#        $match = [RegEx]::new('^' + $pattern).Match($this.SourceText, $this.Index)
-        $match = [RegEx]::new($pattern).Match($this.SourceText, $this.Index)
+        $match = [RegEx]::new('\G' + $pattern).Match($this.SourceText, $this.Index)
         if ($null -eq $match) {
             return $null
         }
         
         if (-not $match.Success) {
-            return $null
-        }
-        
-        if ($match.Index -ne $this.Index) {
-#            throw 'Oh shit, it doesn''t work like this'
             return $null
         }
         
@@ -587,7 +597,6 @@ class MOFParser {
         $result = $this.ParseDocumentElements($state) 
 
         if (-not $state.AtEnd()) {
-            Write-Host $state.SourceText.Substring($state.Index)
             throw 'Did not make it to the end'
         }
 
@@ -1072,11 +1081,19 @@ class MOFParser {
 
         $nextChar = $state.GetNextChar()
 
+        $result = switch($nextChar) {
+            'n' { "`n" }
+            'r' { "`r" }
+            't' { "`t" }
+            'f' { "`t" }
+            default { $nextChar }
+        }
+
         # TODO : Handle more complex escape sequences... like \u001B
 
         $state.Commit()
 
-        return [MOFStringValue]::new($nextChar)
+        return [MOFStringValue]::new($result)
     }
 
     # InstanceOfAs => WS* 'as' WS+ Variable
@@ -1216,6 +1233,8 @@ Function Get-DSCResourceDependenciesFromMOF
         $testMOFParser = [MOFParser]::new()
         $result = $testMOFParser.Parse($mofText)
     } catch {
+        #Set-Content -Path 'C:\temp\oops.mof' -Value $mofText
+
         throw [Exception]::new(
             'Failed to parse ' + $MOFPath,
             $_.Exception

@@ -12,6 +12,10 @@ If the file is already mounted, then the test will simply pass and therefore not
 If the size of the file is more than this value, then the test will immediately pass. The default value of 4MB was chosen because the initial size of a VHDX differencing file is precisely 4MB. Immediately after mounting and closing the image, the size of the image will grow. The risk with this is that if there was a failure copying files during the first use, this test will automatically pass and the problem will remain. Additional verification may be needed. A value of zero bytes means this option would be disabled.
 ### [string[]] ItemList(mandatory)
 This is a list of string pairs formatted as SourcePath, DestinationRelativePath, SourcePath, DestinationRelativePath, etc... A source path can be a file or a directory. This resource DOES NOT create directories, so the parent directory of any file or directory must be present beforehand or the function will fail. At this time, there are no permissions set on files or directories within the image.
+### [string] InitialMOF
+### [string] MOFPath
+InitialMOF and MOFPath are used to copy a MOF from the installation system to the guest VHD. This resource will also scan the MOF for DSC resource dependencies and copy them from the local system to the guest VM. The DSC resources used must be found in the path specified by $Env:PSModulePath, they will be copied to the same either %windir%\System32\Powershell\1.0\Modules or to
+\Program Files\Windows Powershell\Modules. The .PSD1 file of each module will also be processed to identify subdependencies if possible.
 
 ## Exceptions (Throws)
 * System.Exception for when there are cases for which there are no standard .NET exceptions

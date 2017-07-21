@@ -230,7 +230,21 @@ Configuration cDeployWindowsVM
                 The name of the virtual switch to connect the first network interface to.
         #>
         [Parameter()]
-        [string] $SwitchName
+        [string] $SwitchName,
+
+        <#
+            .SYNOPSIS
+                The MOF file to copy to the image
+        #>
+        [Parameter()]
+        [string] $InitialMOF,
+
+        <#
+            .SYNOPSIS
+                Where to copy the MOF to on the VHD
+        #>
+        [Parameter()]
+        [string] $MOFPath
     )
 
     Import-DscResource -Name xVMHyperV -ModuleName xHyper-V
@@ -265,6 +279,8 @@ Configuration cDeployWindowsVM
         ItemList    = @(
                           ($UnattendXMLPath), 'unattend.xml'
                       )
+        InitialMOF  = $InitialMOF
+        MOFPath     = $MOFPath
         DependsOn   = @('[cDifferencingVHD]VirtualMachineDisk', '[cUnattendXml]UnattendXml')
     }
 

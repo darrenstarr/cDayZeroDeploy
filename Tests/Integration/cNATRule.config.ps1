@@ -6,6 +6,11 @@ Configuration cNATRule_Config {
     Import-DscResource -ModuleName cDayZeroDeploy
 
     node $ComputerName {
+        LocalConfigurationManager
+        {
+            DebugMode = 'ForceModuleImport'
+        }
+
         cNATRule BasicTest {
             Name = $Node.RuleName
             Ensure = 'Present'

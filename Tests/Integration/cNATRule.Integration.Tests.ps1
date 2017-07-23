@@ -41,8 +41,8 @@ try
                 AllNodes = @(
                     @{
                         NodeName                            = 'localhost'
-                        RuleName                            = 'NATRule1'
-                        InternalIPInterfaceAddressPrefix    = '172.18.1.0/24'
+                        RuleName                            = 'DemoLabSwitch'
+                        InternalIPInterfaceAddressPrefix    = '10.1.0.0/24'
                     }
                 )
             }

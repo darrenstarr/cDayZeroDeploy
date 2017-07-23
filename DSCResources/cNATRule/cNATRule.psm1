@@ -56,9 +56,9 @@ class cNATRule
         $natRule = Get-NetNat -Name $this.Name
 
         if($null -eq $natRule) {
-            $result.Present = [PresentState]::Absent
+            $result.Ensure = [PresentState]::Absent
         } else {
-            $result.Present = [PresentState]::Present
+            $result.Ensure = [PresentState]::Present
             $result.Active = $natRule.Active
             $result.InternalIPInterfaceAddressPrefix = $natRule.InternalIPInterfaceAddressPrefix
         }
@@ -68,10 +68,14 @@ class cNATRule
 
     [void] Set()
     {
+        if($this.Test()) {
+            return
+        }
+
         Write-Verbose -Message ('Getting existing NAT rule if present')
         $natRule = Get-NetNat -Name $this.Name
         
-        if($this.Present -eq [PresentState]::Absent) {
+        if($this.Ensure -eq [PresentState]::Absent) {
             if($null -ne $natRule) {
                 Write-Verbose -Message ('Removing NAT rule')
                 $natRule | Remove-NetNat -Confirm:$false
@@ -79,23 +83,13 @@ class cNATRule
                 Write-Verbose -Message ('Nothing to do')
             }
         } else {
-            if($null -ne $natRule) {
+            if($null -eq $natRule) {
                 Write-Verbose -Message ('Creating new NAT rule')
-                $parameters = @{
-                    Name = $this.Name
-                    InternalIPInterfaceAddressPrefix = $this.InternalIPInterfaceAddressPrefix
-                    Active = $this.Active
-                }
-
-                New-NetNat @parameters
+                New-NetNat -Name $this.Name -InternalIPInterfaceAddressPrefix $this.InternalIPInterfaceAddressPrefix
             } else {
                 Write-Verbose -Message ('Updating existing NAT rule')
-                $parameters = @{
-                    InternalIPInterfaceAddressPrefix = $this.InternalIPInterfaceAddressPrefix
-                    Active = $this.Active
-                }
-
-                Set-NetNat = @parameters
+                $natRule | Remove-NetNat -Confirm:$false
+                New-NetNat -Name $this.Name -InternalIPInterfaceAddressPrefix $this.InternalIPInterfaceAddressPrefix
             }
         } 
 
@@ -110,11 +104,11 @@ class cNATRule
     {
         $currentState = $this.Get()
 
-        if ($this.Present -ne $currentState.Present) {
+        if ($this.Ensure -ne $currentState.Ensure) {
             return $false
         }
 
-        if($this.Present -eq [PresentState]::Present) {
+        if($this.Ensure -eq [PresentState]::Present) {
             return (
                 ($this.InternalIPInterfaceAddressPrefix -eq $currentState.InternalIPInterfaceAddressPrefix) -and
                 ($this.Active -eq $currentState.Active)

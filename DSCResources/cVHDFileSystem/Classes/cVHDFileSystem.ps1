@@ -193,7 +193,39 @@ class cVHDFileSystem
 
     hidden [string] $WindowsPartitionRoot
 
-    [void] CopyInitialMOFAndDependencies()
+    # TODO : Should be static
+    hidden [string]$PushLCMConfig = 
+@'
+[DSCLocalConfigurationManager()]
+Configuration LCMConfig
+{
+    Node localhost { 
+        Settings {
+            RefreshMode='Push'
+            RebootNodeIfNeeded=$true
+            ActionAfterReboot='ContinueConfiguration'
+        }
+    }
+}
+LCMConfig -OutputPath 'c:\Windows\Panther\lcmmof'
+Set-DscLocalConfigurationManager -Path 'c:\Windows\Panther\lcmmof' -ComputerName 'localhost'
+'@ 
+
+    hidden [void] WritePushLCMConfig()
+    {
+        $pantherScriptPath = Join-Path -Path $this.WindowsPartitionRoot -ChildPath 'Windows\Panther\Scripts'
+        Write-Verbose -Message ('Testing for presence of [' + $pantherScriptPath + ']')
+        if(-not (Test-Path -Path $pantherScriptPath)) {
+            Write-Verbose -Message ('Creating [' + $pantherScriptPath + ']')
+            New-Item -Path $pantherScriptPath -ItemType Directory
+        }
+
+        Write-Verbose -Message 'Writing LCMSetPushLocal.ps1'
+        $lcmConfigScriptPath = Join-Path -Path $pantherScriptPath -ChildPath 'LCMSetPushLocal.ps1'
+        Set-Content -Path $lcmConfigScriptPath -Value $this.PushLCMConfig
+    }
+
+    hidden [void] CopyInitialMOFAndDependencies()
     {
         if([string]::IsNullOrEmpty($this.InitialMOF)) {
             Write-Verbose -Message 'No initial MOF specified'
@@ -216,6 +248,8 @@ class cVHDFileSystem
 
         Write-Verbose -Message ('Copying MOF DSC Resource Dependencies')
         [cOfflineMOFDependencyInstaller]::CopyMOFDependencies($this.InitialMOF, $this.WindowsPartitionRoot)
+
+        $this.WritePushLCMConfig()
     }
 
     [void] CopyItems()

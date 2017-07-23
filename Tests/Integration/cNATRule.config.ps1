@@ -8,7 +8,7 @@ Configuration cNATRule_Config {
     node $ComputerName {
         LocalConfigurationManager
         {
-            DebugMode = 'ForceModuleImport'
+            DebugMode = 'None'
         }
 
         cNATRule BasicTest {

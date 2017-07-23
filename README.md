@@ -36,4 +36,5 @@ Each individual resource is documented in its own README.md. Currently the resou
 * [cVHDFileSystem](https://github.com/darrenstarr/cDayZeroDeploy/tree/master/DSCResources/cVHDFileSystem) - mounts and adds files/directories to a VHD file
 * [cGuestRegistryKey](https://github.com/darrenstarr/cDayZeroDeploy/tree/master/DSCResources/cGuestRegistryKey) - waits for registry changes within a VM via Hyper-V key/value exchange
 * [cWindowsVHD](https://github.com/darrenstarr/cDayZeroDeploy/tree/master/DSCResources/cWindowsVHD) - installs Windows Server 2016 directly from the Windows ISO to a VHD file
+* [cNATRule](https://github.com/darrenstarr/cDayZeroDeploy/tree/master/DSCResources/cNATRule) - configures a Windows networking NAT rule
 

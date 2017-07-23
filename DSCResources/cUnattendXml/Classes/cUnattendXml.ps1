@@ -79,6 +79,15 @@ class cUnattendXml
     [DscProperty()]
 	[string] $ReadyRegistryKeyValue = 'Ready'
 
+    [DSCProperty()]
+    [bool] $ConfigurePushLCM = $false
+
+    [DscProperty()]
+    [bool] $EnableLocalWindowsRemoteManagement = $false
+
+    [DscProperty()]
+    [string] $MOFPath
+
     [cUnattendXml]Get() {
         return $this
     }
@@ -106,6 +115,23 @@ class cUnattendXml
 
         return $unattendText -eq $currentUnattendXml
     }
+
+    hidden static [string]$PushLCMConfig = 
+@'
+[DSCLocalConfigurationManager()]
+Configuration LCMConfig
+{
+    Node localhost { 
+        Settings {
+            RefreshMode='Push'
+            RebootNodeIfNeeded=$true
+            ActionAfterReboot='ContinueConfiguration'
+        }
+    }
+}
+LCMConfig -OutputPath 'c:\Windows\Panther\lcmmof'
+Set-DscLocalConfigurationManager -Path 'c:\Windows\Panther\lcmmof' -ComputerName 'localhost'
+'@ 
 
     hidden [string] CreateUnattendXml() {
 
@@ -234,6 +260,50 @@ class cUnattendXml
             $unattend.SetInterfaceIPv4Metric($this.InterfaceName, 10)
         }
 
+        [bool]$SetAutoLogon = $false
+
+        if($this.EnableLocalWindowsRemoteManagement) {
+            $unattend.AddFirstLogonCommand(
+                'Enable local Windows Remote Management',
+                '%windir%\system32\winrm.cmd quickconfig /quiet'
+            )
+            $SetAutoLogon = $true
+        }
+
+        if($this.ConfigurePushLCM) {
+            if(-not $this.EnableLocalWindowsRemoteManagement) {
+                throw [System.ArgumentException]::new(
+                    'EnableLocalWindowsRemoteManagement is required to use ConfigurePushLCM',
+                    'ConfigurePushLCM'
+                )
+            }            
+            $unattend.AddFirstLogonCommand(
+                'Configure DSC Push Mode',
+                ("%windir%\System32\WindowsPowerShell\v1.0\powershell.exe " +
+                    'C:\Windows\Panther\Scripts\LCMSetPushLocal.ps1')
+                    # "-nologo -encodedCommand "+ 
+                    # [Convert]::ToBase64String([System.Text.Encoding]::Unicode.GetBytes([cUnattendXml]::PushLCMConfig)))
+            )
+
+            $SetAutoLogon = $true
+        }
+
+        if(-not [string]::IsNullOrEmpty($this.MOFPath)) {
+            if(-not $this.EnableLocalWindowsRemoteManagement) {
+                throw [System.ArgumentException]::new(
+                    'EnableLocalWindowsRemoteManagement is required to use MOFPath',
+                    'MOFPath'
+                )
+            }
+
+            $unattend.AddFirstLogonCommand(
+                'Start DSC Configuration',
+                ("%windir%\System32\WindowsPowerShell\v1.0\powershell.exe -nologo -command `"Start-DSCConfiguration -Path 'C:" + $this.MOFPath + "' -verbose -wait -force `"")
+            )
+
+            $SetAutoLogon = $true
+        }
+
         if((-not [String]::IsNullOrEmpty($this.ReadyRegistryKeyName)) -or (-not [String]::IsNullOrEmpty($this.ReadyRegistryKeyValue))) {
             if([String]::IsNullOrEmpty($this.ReadyRegistryKeyName) -or [String]::IsNullOrEmpty($this.ReadyRegistryKeyValue)) {
                 throw [System.ArgumentException]::new(
@@ -242,21 +312,24 @@ class cUnattendXml
                 )
             }
 
+            $unattend.AddFirstLogonCommand(
+                'Inform Host Of Ready State', 
+                '%windir%\system32\reg.exe add "HKLM\Software\Microsoft\Virtual Machine\Guest" /V ' + 
+                $this.ReadyRegistryKeyName + 
+                ' /T REG_SZ /D ' +
+                $this.ReadyRegistryKeyValue
+            )
+        }
+
+        if($SetAutoLogon) {
             if ([String]::IsNullOrEmpty($this.LocalAdministratorPassword)) {
                 throw [System.ArgumentException]::new(
-                    'If configuring a registry key name and value, the local adminsitrator password must be set to allow an autologon session',
+                    'When configuring features (MOFPath, EnableLocalWindowsRemoteManagement, RegistryKeys), it is necessary to supply a local administrator password',
                     'LocalAdministratorPassword'
                 )
             }
 
             $unattend.SetAutoLogon('Administrator', $this.LocalAdministratorPassword, 1)
-            $unattend.AddFirstLogonCommand(
-                    'Inform Host Of Ready State', 
-                    '%windir%\system32\reg.exe add "HKLM\Software\Microsoft\Virtual Machine\Guest" /V ' + 
-                    $this.ReadyRegistryKeyName + 
-                    ' /T REG_SZ /D ' +
-                    $this.ReadyRegistryKeyValue
-                )
         }
 
         return $unattend.ToXml().Trim()

@@ -36,6 +36,7 @@ try {
         Import-DscResource -ModuleName 'cDayZeroDeploy'
         Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
         Import-DscResource -ModuleName 'xActiveDirectory'
+        Import-DscResource -ModuleName 'xComputerManagement'
 
         Node localhost {
             WindowsFeature Stuart {
@@ -63,6 +64,17 @@ try {
                 SafeModeAdministratorPassword = New-Object System.Management.Automation.PSCredential ('dog', (ConvertTo-SecureString 'Odie' -AsPlainText -Force))
                 DomainNetBIOSName = 'MINIONS'
             }
+
+            xWaitForADDomain WaitForAD {
+                DomainName = 'Minions.org'           
+            }
+
+            xComputer ComputerSettings {
+                Name       = 'Dave'
+                DomainName = 'Minions.org'
+                DependsOn  = @('[xWaitForADDomain]WaitForAD')
+            }
+
 
             Script Bob {
                 GetScript = {

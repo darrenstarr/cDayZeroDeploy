@@ -1,4 +1,5 @@
 #requires -Version 5.0 -Modules Pester
+Clear-Host
 
 $script:DSCModuleName = 'cDayZeroDeploy'
 $script:DSCResourceName = 'cUnattendXml'

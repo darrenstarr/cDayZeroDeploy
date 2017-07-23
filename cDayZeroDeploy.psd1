@@ -3,6 +3,7 @@
 RootModule = '.\cDayZeroDeploy.psm1'
 
 DscResourcesToExport = @(
+        'cNATRule',
         'cDifferencingVHD', 
         'cGuestRegistryKey', 
         'cUnattendXml', 

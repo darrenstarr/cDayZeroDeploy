@@ -11,7 +11,7 @@
 
         To resolve this issue, I have made this script which first makes a PSM1 for each DSC resource that needs to
         include something. I then glue all the PSM1 files together into one giant PSM1 file because Import-Module
-        acts really weird and won't find the other PSM1 files if they aren't part of the main PSM1 file.
+        acts really weird and won't find the other PSM1 5files if they aren't part of the main PSM1 file.
 
         I would have written a nice clean function to do this job, but I hate the way this works and would
         rather make a script compiler.. possibly one that minimizes as well at a later point. So for now, I'll
@@ -61,6 +61,7 @@ Set-Content -Path (Join-Path -Path $PSScriptRoot -ChildPath '..\DSCResources\cVH
 
 '@
 
+$content += (Get-Content -Raw -Path (Join-Path -Path $PSScriptRoot -ChildPath '..\DSCResources\cNATRule\cNATRule.psm1')).TrimEnd() + "`n"
 $content += (Get-Content -Raw -Path (Join-Path -Path $PSScriptRoot -ChildPath '..\DSCResources\cUnattendXml\cUnattendXml.psm1')).TrimEnd() + "`n"
 $content += (Get-Content -Raw -Path (Join-Path -Path $PSScriptRoot -ChildPath '..\DSCResources\cDifferencingVHD\cDifferencingVHD.psm1')).TrimEnd() + "`n"
 $content += (Get-Content -Raw -Path (Join-Path -Path $PSScriptRoot -ChildPath '..\DSCResources\cGuestRegistryKey\cGuestRegistryKey.psm1')).TrimEnd() + "`n"

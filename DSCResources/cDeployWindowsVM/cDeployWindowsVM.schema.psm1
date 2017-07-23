@@ -255,23 +255,26 @@ Configuration cDeployWindowsVM
     }
 
     cUnattendXml UnattendXml {
-        Path                        = $UnattendXMLPath
-        ComputerName                = $ComputerName
-        RegisteredOwner             = $RegisteredOwner
-        RegisteredOrganization      = $RegisteredOrganization
-        TimeZone                    = $TimeZone
-        LocalAdministratorPassword  = $LocalAdministratorPassword
-        InterfaceName               = $InterfaceName
-        DisableDHCP                 = $DisableDHCP
-        DisableRouterDiscovery      = $DisableRouterDiscovery
-        IPAddress                   = $IPAddress
-        SubnetLength                = $SubnetLength
-        DefaultGateway              = $DefaultGateway
-        DNSServers                  = $DNSServers
-        DNSDomainName               = $DNSDomainName
-        InterfaceMetric             = $InterfaceMetric
-        ReadyRegistryKeyName        = $ReadyRegistryKeyName
-        ReadyRegistryKeyValue       = $ReadyRegistryKeyValue
+        Path                                = $UnattendXMLPath
+        ComputerName                        = $ComputerName
+        RegisteredOwner                     = $RegisteredOwner
+        RegisteredOrganization              = $RegisteredOrganization
+        TimeZone                            = $TimeZone
+        LocalAdministratorPassword          = $LocalAdministratorPassword
+        InterfaceName                       = $InterfaceName
+        DisableDHCP                         = $DisableDHCP
+        DisableRouterDiscovery              = $DisableRouterDiscovery
+        IPAddress                           = $IPAddress
+        SubnetLength                        = $SubnetLength
+        DefaultGateway                      = $DefaultGateway
+        DNSServers                          = $DNSServers
+        DNSDomainName                       = $DNSDomainName
+        InterfaceMetric                     = $InterfaceMetric
+        EnableLocalWindowsRemoteManagement  = $true
+        ConfigurePushLCM                    = $true
+        MOFPath                             = $MOFPath
+        ReadyRegistryKeyName                = $ReadyRegistryKeyName
+        ReadyRegistryKeyValue               = $ReadyRegistryKeyValue
     }
 
     cVHDFileSystem VHDFileSystem {
@@ -303,9 +306,10 @@ Configuration cDeployWindowsVM
     }
 
     cGuestRegistryKey StatusReadyKey {
-        VMName      = $VMName
-        KeyName     = $ReadyRegistryKeyName
-        KeyValue    = $ReadyRegistryKeyValue
-        DependsOn   = @('[xVMHyperV]VirtualMachine')
+        VMName          = $VMName
+        KeyName         = $ReadyRegistryKeyName
+        KeyValue        = $ReadyRegistryKeyValue
+        DependsOn       = @('[xVMHyperV]VirtualMachine')
+        TimeOutSeconds  = 600
     }
 }

@@ -1275,6 +1275,31 @@ Function Get-DSCResourceDependenciesFromMOF
 }
 
 <#
+This code is written and maintained by Darren R. Starr from Conscia Norway AS.
+
+License :
+
+Copyright (c) 2017 Conscia Norway AS
+
+Permission is hereby granted, free of charge, to any person obtaining a 
+copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation 
+the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software 
+is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#>
+
+<#
     .SYNOPSIS
         Container for storing information about files to be copied from a host system to a VHD
 
@@ -1303,6 +1328,31 @@ class cDSCResourceManifestItem
     #>
     [string]$RecommendedDestinationPath
 }
+
+<#
+This code is written and maintained by Darren R. Starr from Conscia Norway AS.
+
+License :
+
+Copyright (c) 2017 Conscia Norway AS
+
+Permission is hereby granted, free of charge, to any person obtaining a 
+copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation 
+the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software 
+is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#>
 
 # TODO: Horrible hack to make sure that Get-DSCResource and all related types are available
 Get-Command -Name 'Get-DSCResource' | Out-Null
@@ -1636,6 +1686,52 @@ class cDSCResourceInformation
     }
 }
 
+<#
+This code is written and maintained by Darren R. Starr from Conscia Norway AS.
+
+License :
+
+Copyright (c) 2017 Conscia Norway AS
+
+Permission is hereby granted, free of charge, to any person obtaining a 
+copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation 
+the rights to use, copy, modify, merge, publish, distribute, sublicense, 
+and/or sell copies of the Software, and to permit persons to whom the Software 
+is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in 
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
+INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
+HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
+OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+#>
+
+<#
+    .SYNOPSIS
+        A class to perform an offline installation of DSC resources needed by a MOF file
+
+    .DESCRIPTION
+        This class opens, parses and extracts a list of all DSC resource dependencies needed by
+        a MOF file. Then it catalogs a manifest of all the files and directories needed for the
+        DSC resources and copies them to a location, assumed to be the root directory of a mounted
+        Windows Server VHD based virtual machine to the directory structure of that virtual machine.
+
+  .AUTHOR
+      Darren R. Starr
+ 
+  .COPYRIGHT
+      2017 Conscia Norway AS
+ 
+    .NOTES
+        I am not 1000% percent secure in my means of identifying the root of a DSC resource as
+        there is no mechanism I could find on Get-DSCResource to return the GUID of the resource
+        so I could read the contents of a PSD1 file and match it to the resource module.
+#>
 class cOfflineMOFDependencyInstaller
 {
     <#
@@ -1937,7 +2033,39 @@ class cVHDFileSystem
 
     hidden [string] $WindowsPartitionRoot
 
-    [void] CopyInitialMOFAndDependencies()
+    # TODO : Should be static
+    hidden [string]$PushLCMConfig = 
+@'
+[DSCLocalConfigurationManager()]
+Configuration LCMConfig
+{
+    Node localhost { 
+        Settings {
+            RefreshMode='Push'
+            RebootNodeIfNeeded=$true
+            ActionAfterReboot='ContinueConfiguration'
+        }
+    }
+}
+LCMConfig -OutputPath 'c:\Windows\Panther\lcmmof'
+Set-DscLocalConfigurationManager -Path 'c:\Windows\Panther\lcmmof' -ComputerName 'localhost'
+'@ 
+
+    hidden [void] WritePushLCMConfig()
+    {
+        $pantherScriptPath = Join-Path -Path $this.WindowsPartitionRoot -ChildPath 'Windows\Panther\Scripts'
+        Write-Verbose -Message ('Testing for presence of [' + $pantherScriptPath + ']')
+        if(-not (Test-Path -Path $pantherScriptPath)) {
+            Write-Verbose -Message ('Creating [' + $pantherScriptPath + ']')
+            New-Item -Path $pantherScriptPath -ItemType Directory
+        }
+
+        Write-Verbose -Message 'Writing LCMSetPushLocal.ps1'
+        $lcmConfigScriptPath = Join-Path -Path $pantherScriptPath -ChildPath 'LCMSetPushLocal.ps1'
+        Set-Content -Path $lcmConfigScriptPath -Value $this.PushLCMConfig
+    }
+
+    hidden [void] CopyInitialMOFAndDependencies()
     {
         if([string]::IsNullOrEmpty($this.InitialMOF)) {
             Write-Verbose -Message 'No initial MOF specified'
@@ -1960,6 +2088,8 @@ class cVHDFileSystem
 
         Write-Verbose -Message ('Copying MOF DSC Resource Dependencies')
         [cOfflineMOFDependencyInstaller]::CopyMOFDependencies($this.InitialMOF, $this.WindowsPartitionRoot)
+
+        $this.WritePushLCMConfig()
     }
 
     [void] CopyItems()

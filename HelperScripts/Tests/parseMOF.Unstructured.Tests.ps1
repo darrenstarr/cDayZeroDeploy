@@ -33,11 +33,23 @@ try {
     Configuration Bob {
         Import-DscResource -ModuleName 'cDayZeroDeploy'
         Import-DscResource -ModuleName 'PSDesiredStateConfiguration'
+        Import-DscResource -ModuleName 'xComputerManagement'
+        Import-DscResource -ModuleName 'xActiveDirectory'
 
         Node localhost {
             WindowsFeature Stuart {
                 Name = 'Kevin'
                 Ensure = 'Present'
+            }
+
+            xWaitForADDomain WaitForAD {
+                DomainName = $ConfigurationData.AllNodes.ADDomain            
+            }
+
+            xComputer ComputerSettings {
+                Name       = 'Dave'
+                DomainName = 'Minions.org'
+                DependsOn  = @('[xWaitForADDomain]WaitForAD')
             }
 
             cDeployWindowsVM Minions {
@@ -51,7 +63,8 @@ try {
                 DNSServers                  = ('8.8.8.8', '8.8.4.4')            
 
                 ReadyRegistryKeyName        = 'SystemStatus'
-                ReadyRegistryKeyValue       = 'Ready'                
+                ReadyRegistryKeyValue       = 'Ready'
+                DependsOn                   = @('[xComputer]ComputerSettings')
             }
         }
     }
